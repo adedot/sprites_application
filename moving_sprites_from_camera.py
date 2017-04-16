@@ -18,6 +18,16 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+# add yellow
+
+# Create color mappings dictionary
+
+# Add yellow
+
+
+BASE_URL = "http://54.146.129.119:8080/"
+
+
 
 
 class Block(pygame.sprite.Sprite):
@@ -25,7 +35,7 @@ class Block(pygame.sprite.Sprite):
     This class represents the ball
     It derives from the "Sprite" class in Pygame
     """
-    def __init__(self, color, width, height):
+    def __init__(self, color, width, height, block_id, signature):
         """ Constructor. Pass in the color of the block,
         and its x and y position. """
         # Call the parent class (Sprite) constructor
@@ -36,6 +46,9 @@ class Block(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image.fill(color)
 
+
+        self.block_id = block_id
+        self.signature = signature
         # Fetch the rectangle object that has the dimensions of the image
         # image.
         # Update the position of this object by setting the values
@@ -52,35 +65,43 @@ class Block(pygame.sprite.Sprite):
     def update(self):
         """ Called each frame. """
 
-        # Move block down one pixel
-        self.rect.y += 1
+        url = BASE_URL + "blocks/update/block_id={}&signature={}".format(self.block_id, self.signature)
 
-        # If block is too far down, reset to top of screen.
-        if self.rect.y > 410:
-            self.reset_pos()
+        block_json = json.loads(r.text)
 
+        width = int(round(float(block_json['width'])))
+        height = int(round(float(block_json['height'])))
+        block = Block(BLACK, width, height)
+        x = int(round(float(block_json['x'])))
+        y = int(round(float(block_json['y'])))
+        block.rect.x = x
+        block.rect.y = y
 
-class Player(Block):
-    """ The player class derives from Block, but overrides the 'update'
-    functionality with new a movement function that will move the block
-    with the mouse. """
-    def update(self):
-        # Get the current mouse position. This returns the position
-        # as a list of two numbers.
-        pos = pygame.mouse.get_pos()
+        # # Move block down one pixel
+        # self.rect.y += 1
 
-        # Fetch the x and y out of the list,
-        # just like we'd fetch letters out of a string.
-        # Set the player object to the mouse location
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
+        # # If block is too far down, reset to top of screen.
+        # if self.rect.y > 410:
+        #     self.reset_pos()
+
+# def setBlock(block_json)
+#     width = int(round(float(block_json['width'])))
+#     height = int(round(float(block_json['height'])))
+#     block = Block(BLACK, width, height)
+#     x = int(round(float(block_json['x'])))
+#     y = int(round(float(block_json['y'])))
+#     block.rect.x = x
+#     block.rect.y = y
+
+#     return block
+
 
 # Initialize Pygame
 pygame.init()
 
 # Set the height and width of the screen
-screen_width = 700
-screen_height = 400
+screen_width = 800
+screen_height = 600
 screen = pygame.display.set_mode([screen_width, screen_height])
 
 # This is a list of 'sprites.' Each block in the program is
@@ -90,8 +111,8 @@ block_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
-# Send a request to get the blocks
-r = requests.get('http://54.146.129.119:8080/blocks/')
+# Send a request to get the latest blocks
+r = requests.get(BASE_URL+'blocks/latest/')
 # dump the json into a dictionary
 blocks = json.loads(r.text)
 
@@ -106,11 +127,6 @@ for number in range(len(blocks)):
     block.rect.y = y
     block_list.add(block)
     all_sprites_list.add(block)
-
-
-# Create a red player block
-player = Player(RED, 20, 15)
-all_sprites_list.add(player)
 
 # Loop until the user clicks the close button.
 done = False
@@ -131,17 +147,9 @@ while not done:
 
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
+    # To up date the position, make a call to the web service
+    # to find the next position given the block id
 
-    # See if the player block has collided with anything.
-    blocks_hit_list = pygame.sprite.spritecollide(player, block_list, False)
-
-    # Check the list of collisions.
-    for block in blocks_hit_list:
-        score += 1
-        print(score)
-
-        # Reset block to the top of the screen to fall again.
-        block.reset_pos()
 
     # Draw all the spites
     all_sprites_list.draw(screen)

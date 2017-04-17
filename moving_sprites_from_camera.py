@@ -65,24 +65,14 @@ class Block(pygame.sprite.Sprite):
     def update(self):
         """ Called each frame. """
 
-        url = BASE_URL + "blocks/update/block_id={}&signature={}".format(self.block_id, self.signature)
+        url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
+
+        r = requests.get(url)
 
         block_json = json.loads(r.text)
 
-        width = int(round(float(block_json['width'])))
-        height = int(round(float(block_json['height'])))
-        block = Block(BLACK, width, height)
-        x = int(round(float(block_json['x'])))
-        y = int(round(float(block_json['y'])))
-        block.rect.x = x
-        block.rect.y = y
-
-        # # Move block down one pixel
-        # self.rect.y += 1
-
-        # # If block is too far down, reset to top of screen.
-        # if self.rect.y > 410:
-        #     self.reset_pos()
+        self.rect.x = int(round(float(block_json['x'])))
+        self.rect.y = int(round(float(block_json['y'])))
 
 # def setBlock(block_json)
 #     width = int(round(float(block_json['width'])))
@@ -118,9 +108,12 @@ blocks = json.loads(r.text)
 
 # Create the blocks
 for number in range(len(blocks)):
+
+    block_id = blocks[number]['block_id']
+    signature = blocks[number]['signature']
     width = int(round(float(blocks[number]['width'])))
     height = int(round(float(blocks[number]['height'])))
-    block = Block(BLACK, width, height)
+    block = Block(BLACK, width, height, block_id, signature)
     x = int(round(float(blocks[number]['x'])))
     y = int(round(float(blocks[number]['y'])))
     block.rect.x = x

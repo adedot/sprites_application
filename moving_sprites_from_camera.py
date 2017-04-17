@@ -18,7 +18,12 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 # add yellow
+# blue
+
+colors = {1: RED, 2:GREEN, 3: BLUE}
+
 
 # Create color mappings dictionary
 
@@ -113,7 +118,7 @@ for number in range(len(blocks)):
     signature = blocks[number]['signature']
     width = int(round(float(blocks[number]['width'])))
     height = int(round(float(blocks[number]['height'])))
-    block = Block(BLACK, width, height, block_id, signature)
+    block = Block(colors[signature], width, height, block_id, signature)
     x = int(round(float(blocks[number]['x'])))
     y = int(round(float(blocks[number]['y'])))
     block.rect.x = x
@@ -136,7 +141,7 @@ while not done:
             done = True
 
     # Clear the screen
-    screen.fill(WHITE)
+    screen.fill(BLACK)
 
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
@@ -148,7 +153,7 @@ while not done:
     all_sprites_list.draw(screen)
 
     # Limit to 20 frames per second
-    clock.tick(20)
+    clock.tick(30)
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

@@ -1,10 +1,5 @@
 """
-Sample Python/Pygame Programs
-Simpson College Computer Science
-http://programarcadegames.com/
-http://simpson.edu/computer-science/
-
-Explanation video: http://youtu.be/qbEEcQXw8aw
+Moving Sprites from Pixy Camera
 """
 
 import pygame
@@ -95,8 +90,8 @@ class Block(pygame.sprite.Sprite):
 pygame.init()
 
 # Set the height and width of the screen
-screen_width = 800
-screen_height = 600
+screen_width = 400
+screen_height = 300
 screen = pygame.display.set_mode([screen_width, screen_height])
 
 # This is a list of 'sprites.' Each block in the program is
@@ -106,7 +101,9 @@ block_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
-# Send a request to get the latest blocks
+#requests.delete(BASE_URL+'blocks/delete/')
+
+# # Send a request to get the latest blocks
 r = requests.get(BASE_URL+'blocks/latest/')
 # dump the json into a dictionary
 blocks = json.loads(r.text)

@@ -74,16 +74,26 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = int(round(float(block_json['x'])))
         self.rect.y = int(round(float(block_json['y'])))
 
-# def setBlock(block_json)
-#     width = int(round(float(block_json['width'])))
-#     height = int(round(float(block_json['height'])))
-#     block = Block(BLACK, width, height)
-#     x = int(round(float(block_json['x'])))
-#     y = int(round(float(block_json['y'])))
-#     block.rect.x = x
-#     block.rect.y = y
+def setBlocks():
+# # Send a request to get the latest blocks
+    r = requests.get(BASE_URL+'blocks/latest/')
+    # dump the json into a dictionary
+    blocks = json.loads(r.text)
 
-#     return block
+    # Create the blocks
+    for number in range(len(blocks)):
+
+        block_id = blocks[number]['block_id']
+        signature = blocks[number]['signature']
+        width = int(round(float(blocks[number]['width'])))
+        height = int(round(float(blocks[number]['height'])))
+        block = Block(colors[signature], width, height, block_id, signature)
+        x = int(round(float(blocks[number]['x'])))
+        y = int(round(float(blocks[number]['y'])))
+        block.rect.x = x
+        block.rect.y = y
+        block_list.add(block)
+        all_sprites_list.add(block)
 
 
 # Initialize Pygame
@@ -101,35 +111,11 @@ block_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
-#requests.delete(BASE_URL+'blocks/delete/')
-
-# # Send a request to get the latest blocks
-r = requests.get(BASE_URL+'blocks/latest/')
-# dump the json into a dictionary
-blocks = json.loads(r.text)
-
-# Create the blocks
-for number in range(len(blocks)):
-
-    block_id = blocks[number]['block_id']
-    signature = blocks[number]['signature']
-    width = int(round(float(blocks[number]['width'])))
-    height = int(round(float(blocks[number]['height'])))
-    block = Block(colors[signature], width, height, block_id, signature)
-    x = int(round(float(blocks[number]['x'])))
-    y = int(round(float(blocks[number]['y'])))
-    block.rect.x = x
-    block.rect.y = y
-    block_list.add(block)
-    all_sprites_list.add(block)
-
 # Loop until the user clicks the close button.
 done = False
 
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
-
-score = 0
 
 # -------- Main Program Loop -----------
 while not done:
@@ -139,6 +125,8 @@ while not done:
 
     # Clear the screen
     screen.fill(BLACK)
+
+    setBlocks()
 
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
@@ -150,7 +138,7 @@ while not done:
     all_sprites_list.draw(screen)
 
     # Limit to 20 frames per second
-    clock.tick(30)
+    clock.tick(20)
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

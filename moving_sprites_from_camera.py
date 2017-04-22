@@ -4,7 +4,7 @@ Moving Sprites from Pixy Camera
 
 import pygame
 import random
-import json
+import ujson as json
 import requests
 
 

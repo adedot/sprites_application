@@ -6,7 +6,7 @@ import pygame
 import random
 import ujson as json
 import requests
-
+from requests.adapters import HTTPAdapter
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -19,7 +19,7 @@ BLUE = (0, 0, 255)
 
 colors = {1: RED, 2:GREEN, 3: BLUE}
 
-
+BALL_SIZE = 10
 # Create color mappings dictionary
 
 # Add yellow
@@ -30,7 +30,7 @@ BASE_URL = "http://54.146.129.119:8080/"
 
 
 
-class Block(pygame.sprite.Sprite):
+class Ball(pygame.sprite.Sprite):
     """
     This class represents the ball
     It derives from the "Sprite" class in Pygame
@@ -47,6 +47,7 @@ class Block(pygame.sprite.Sprite):
         self.image.fill(color)
 
 
+
         self.block_id = block_id
         self.signature = signature
         # Fetch the rectangle object that has the dimensions of the image
@@ -54,27 +55,28 @@ class Block(pygame.sprite.Sprite):
         # Update the position of this object by setting the values
         # of rect.x and rect.y
         self.rect = self.image.get_rect()
+        pygame.draw.ellipse(self.image,color, [0,0,width,height], 5)
 
-    def reset_pos(self):
-        """ Reset position to the top of the screen, at a random x location.
-        Called by update() or the main program loop if there is a collision.
-        """
-        self.rect.y = random.randrange(-300, -20)
-        self.rect.x = random.randrange(0, screen_width)
+    # def reset_pos(self):
+    #     """ Reset position to the top of the screen, at a random x location.
+    #     Called by update() or the main program loop if there is a collision.
+    #     """
+    #     self.rect.x= random.randrange(-300, -20)
+    #     self.rect.y = random.randrange(0, screen_width)
 
     def update(self):
         """ Called each frame. """
 
         url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
 
-        r = requests.get(url)
+        r = requests.get(url, HTTPAdapter(max_retries=10))
 
         block_json = json.loads(r.text)
 
         self.rect.x = int(round(float(block_json['x'])))
         self.rect.y = int(round(float(block_json['y'])))
 
-def getLatestBlocks():
+def getLatestBalls():
 # # Send a request to get the latest blocks
     blocks_request = requests.get(BASE_URL+'blocks/latest/')
     # dump the json into a dictionary
@@ -85,9 +87,9 @@ def getLatestBlocks():
 
         block_id = blocks[number]['block_id']
         signature = blocks[number]['signature']
-        width = int(round(float(blocks[number]['width'])))
-        height = int(round(float(blocks[number]['height'])))
-        block = Block(colors[signature], width, height, block_id, signature)
+        width = 20
+        height = 15
+        block = Ball(colors[signature], width, height, block_id, signature)
         x = int(round(float(blocks[number]['x'])))
         y = int(round(float(blocks[number]['y'])))
         block.rect.x = x
@@ -113,7 +115,7 @@ all_sprites_list = pygame.sprite.Group()
 
 # To up date the position, make a call to the web service
 # to find the next position given the block id
-getLatestBlocks()
+getLatestBalls()
 
 # Loop until the user clicks the close button.
 done = False
@@ -136,8 +138,8 @@ while not done:
     # Draw all the spites
     all_sprites_list.draw(screen)
 
-    # Limit to 20 frames per second
-    clock.tick(20)
+    # Limit to 10 frames per second
+    clock.tick(10)
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

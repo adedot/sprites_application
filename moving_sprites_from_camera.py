@@ -74,11 +74,11 @@ class Block(pygame.sprite.Sprite):
         self.rect.x = int(round(float(block_json['x'])))
         self.rect.y = int(round(float(block_json['y'])))
 
-def setBlocks():
+def getLatestBlocks():
 # # Send a request to get the latest blocks
-    r = requests.get(BASE_URL+'blocks/latest/')
+    blocks_request = requests.get(BASE_URL+'blocks/latest/')
     # dump the json into a dictionary
-    blocks = json.loads(r.text)
+    blocks = json.loads(blocks_request.text)
 
     # Create the blocks
     for number in range(len(blocks)):
@@ -113,7 +113,7 @@ all_sprites_list = pygame.sprite.Group()
 
 # To up date the position, make a call to the web service
 # to find the next position given the block id
-setBlocks()
+getLatestBlocks()
 
 # Loop until the user clicks the close button.
 done = False
@@ -130,12 +130,8 @@ while not done:
     # Clear the screen
     screen.fill(BLACK)
 
-
-
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
-
-
 
     # Draw all the spites
     all_sprites_list.draw(screen)

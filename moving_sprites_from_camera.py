@@ -44,10 +44,11 @@ class Ball(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.image = pygame.Surface([width, height])
-        self.image.fill(color)
+        self.image.fill(BLACK)
+        self.image.set_colorkey(BLACK)
 
 
-
+        # Set the block id and signature to be used later
         self.block_id = block_id
         self.signature = signature
         # Fetch the rectangle object that has the dimensions of the image
@@ -55,7 +56,8 @@ class Ball(pygame.sprite.Sprite):
         # Update the position of this object by setting the values
         # of rect.x and rect.y
         self.rect = self.image.get_rect()
-        pygame.draw.ellipse(self.image,color, [0,0,width,height], 5)
+        pygame.draw.ellipse(self.image,color, [0, 0, width, height])
+
 
     # def reset_pos(self):
     #     """ Reset position to the top of the screen, at a random x location.
@@ -87,13 +89,13 @@ def getLatestBalls():
 
         block_id = blocks[number]['block_id']
         signature = blocks[number]['signature']
-        width = 20
-        height = 15
+        width = 25
+        height = 25
         block = Ball(colors[signature], width, height, block_id, signature)
-        x = int(round(float(blocks[number]['x'])))
-        y = int(round(float(blocks[number]['y'])))
-        block.rect.x = x
-        block.rect.y = y
+        # x = int(round(float(blocks[number]['x'])))
+        # y = int(round(float(blocks[number]['y'])))
+        # block.rect.x = x
+        # block.rect.y = y
         block_list.add(block)
         all_sprites_list.add(block)
 
@@ -139,7 +141,7 @@ while not done:
     all_sprites_list.draw(screen)
 
     # Limit to 10 frames per second
-    clock.tick(10)
+    clock.tick(60)
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

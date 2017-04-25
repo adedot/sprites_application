@@ -111,6 +111,10 @@ block_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
+# To up date the position, make a call to the web service
+# to find the next position given the block id
+setBlocks()
+
 # Loop until the user clicks the close button.
 done = False
 
@@ -126,12 +130,11 @@ while not done:
     # Clear the screen
     screen.fill(BLACK)
 
-    setBlocks()
+
 
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
-    # To up date the position, make a call to the web service
-    # to find the next position given the block id
+
 
 
     # Draw all the spites

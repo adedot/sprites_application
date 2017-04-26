@@ -17,7 +17,7 @@ BLUE = (0, 0, 255)
 # add yellow
 # blue
 
-colors = {1: RED, 2:GREEN, 3: BLUE}
+colors = {1: RED, 3:GREEN, 2: BLUE}
 
 BALL_SIZE = 10
 # Create color mappings dictionary

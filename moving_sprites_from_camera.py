@@ -69,14 +69,19 @@ class Ball(pygame.sprite.Sprite):
     def update(self):
         """ Called each frame. """
 
-        url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
+        try:
+            url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
 
-        r = requests.get(url, HTTPAdapter(max_retries=10))
+            r = requests.get(url)
 
-        block_json = json.loads(r.text)
+            block_json = json.loads(r.text)
 
-        self.rect.x = int(round(float(block_json['x'])))
-        self.rect.y = int(round(float(block_json['y'])))
+            self.rect.x = int(round(float(block_json['x'])))
+            self.rect.y = int(round(float(block_json['y'])))
+
+        except requests.exceptions.ConnectionError:
+            pass
+
 
 def getLatestBalls():
 # # Send a request to get the latest blocks

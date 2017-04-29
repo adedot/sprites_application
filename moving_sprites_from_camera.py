@@ -35,7 +35,7 @@ class Block(pygame.sprite.Sprite):
     It derives from the "Sprite" class in Pygame
     """
 
-    def __init__(self, color, width, height):
+    def __init__(self, color, width, height, x, y):
         """ Constructor. Pass in the color of the block,
         and its x and y position. """
         # Call the parent class (Sprite) constructor
@@ -51,18 +51,16 @@ class Block(pygame.sprite.Sprite):
         # Update the position of this object by setting the values
         # of rect.x and rect.y
         self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 
-    def update(self):
-        # Get the current mouse position. This returns the position
-        # as a list of two numbers.
-        pos = pygame.mouse.get_pos()
-
-        # Fetch the x and y out of the list,
-        # just like we'd fetch letters out of a string.
-        # Set the player object to the mouse location
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
+    # def update(self):
+    #     # Fetch the x and y out of the list,
+    #     # just like we'd fetch letters out of a string.
+    #     # Set the player object to the mouse location
+    #     self.rect.x = self.x
+    #     self.rect.y = self.y
 
 
 class Ball(pygame.sprite.Sprite):
@@ -156,11 +154,11 @@ all_sprites_list = pygame.sprite.Group()
 # to find the next position given the block id
 getLatestBalls()
 
-# Create a red player block
-line_1 = Block(WHITE, 20, 400)
-line_2 = Block(WHITE, 20, 400)
+# Create a white blocks
+line_1 = Block(WHITE, 20, 500, 5, 0)
+line_2 = Block(WHITE, 20, 500, 370, 0)
 all_sprites_list.add(line_1)
-# all_sprites_list.add(line_2)
+all_sprites_list.add(line_2)
 
 # Loop until the user clicks the close button.
 done = False

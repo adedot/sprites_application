@@ -110,8 +110,8 @@ class Ball(pygame.sprite.Sprite):
 
             block_json = json.loads(r.text)
 
-            self.rect.x = int(round(float(block_json['x'])))
-            self.rect.y = int(round(float(block_json['y'])))
+            self.rect.x = block_json['x']
+            self.rect.y = block_json['y']
 
         except requests.exceptions.ConnectionError:
             pass
@@ -177,6 +177,7 @@ while not done:
 
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
+    # getLatestBalls()
 
     # Draw all the spites
     all_sprites_list.draw(screen)

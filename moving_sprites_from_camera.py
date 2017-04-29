@@ -8,6 +8,8 @@ import ujson as json
 import requests
 from requests.adapters import HTTPAdapter
 
+import time
+
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -27,7 +29,40 @@ BALL_SIZE = 10
 
 BASE_URL = "http://54.146.129.119:8080/"
 
+class Block(pygame.sprite.Sprite):
+    """
+    This class represents the ball
+    It derives from the "Sprite" class in Pygame
+    """
 
+    def __init__(self, color, width, height):
+        """ Constructor. Pass in the color of the block,
+        and its x and y position. """
+        # Call the parent class (Sprite) constructor
+        super().__init__()
+
+        # Create an image of the block, and fill it with a color.
+        # This could also be an image loaded from the disk.
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+
+        # Fetch the rectangle object that has the dimensions of the image
+        # image.
+        # Update the position of this object by setting the values
+        # of rect.x and rect.y
+        self.rect = self.image.get_rect()
+
+
+    def update(self):
+        # Get the current mouse position. This returns the position
+        # as a list of two numbers.
+        pos = pygame.mouse.get_pos()
+
+        # Fetch the x and y out of the list,
+        # just like we'd fetch letters out of a string.
+        # Set the player object to the mouse location
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
 
 
 class Ball(pygame.sprite.Sprite):
@@ -72,6 +107,7 @@ class Ball(pygame.sprite.Sprite):
         try:
             url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
 
+            time.sleep(0.1)
             r = requests.get(url)
 
             block_json = json.loads(r.text)
@@ -97,10 +133,6 @@ def getLatestBalls():
         width = 25
         height = 25
         block = Ball(colors[signature], width, height, block_id, signature)
-        # x = int(round(float(blocks[number]['x'])))
-        # y = int(round(float(blocks[number]['y'])))
-        # block.rect.x = x
-        # block.rect.y = y
         block_list.add(block)
         all_sprites_list.add(block)
 
@@ -123,6 +155,12 @@ all_sprites_list = pygame.sprite.Group()
 # To up date the position, make a call to the web service
 # to find the next position given the block id
 getLatestBalls()
+
+# Create a red player block
+line_1 = Block(WHITE, 20, 400)
+line_2 = Block(WHITE, 20, 400)
+all_sprites_list.add(line_1)
+# all_sprites_list.add(line_2)
 
 # Loop until the user clicks the close button.
 done = False

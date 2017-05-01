@@ -131,9 +131,21 @@ def getLatestBalls():
         width = 25
         height = 25
         block = Ball(colors[signature], width, height, block_id, signature)
+        block.rect.x = blocks[number]['x']
+        block.rect.y = blocks[number]['y']
         block_list.add(block)
         all_sprites_list.add(block)
 
+
+def deleteBlock(block):
+    try:
+        url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block.block_id, block.signature)
+
+        time.sleep(0.1)
+        r = requests.delete(url)
+
+    except requests.exceptions.ConnectionError:
+        pass
 
 # Initialize Pygame
 pygame.init()
@@ -166,6 +178,8 @@ done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 
+score = 0
+
 # -------- Main Program Loop -----------
 while not done:
     for event in pygame.event.get():
@@ -176,8 +190,22 @@ while not done:
     screen.fill(BLACK)
 
     # Calls update() method on every sprite in the list
-    all_sprites_list.update()
-    # getLatestBalls()
+    # all_sprites_list.update()
+    getLatestBalls()
+
+    # See if the player block has collided with anything.
+    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, block_list, True)
+    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, block_list, True)
+
+    # Delete all the boys in the hit list
+    # Check the list of collisions.
+    for block in ball_hit_list_1:
+        score += 1
+        deleteBlock(block)
+
+    for block in ball_hit_list_2:
+        score += 1
+        deleteBlock(block)
 
     # Draw all the spites
     all_sprites_list.draw(screen)

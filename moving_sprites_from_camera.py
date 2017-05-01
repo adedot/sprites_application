@@ -19,6 +19,9 @@ BLUE = (0, 0, 255)
 # add yellow
 # blue
 
+LEFT = 50
+RIGHT = 300
+
 colors = {1: RED, 3:GREEN, 2: BLUE}
 
 BALL_SIZE = 10
@@ -105,16 +108,24 @@ class Ball(pygame.sprite.Sprite):
         try:
             url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
 
-            time.sleep(0.1)
+            time.sleep(0.5)
             r = requests.get(url)
 
             block_json = json.loads(r.text)
 
-            self.rect.x = block_json['x']
-            self.rect.y = block_json['y']
+            if LEFT < block_json['x'] < RIGHT:
+                self.rect.x = block_json['x']
+                self.rect.y = block_json['y']
+            else:
+                url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(self.block_id, self.signature)
+
+                r = requests.delete(url)
+                self.kill()
 
         except requests.exceptions.ConnectionError:
             pass
+        except ValueError:
+            print("No Expected value for block_id {} and signature {}".format(self.block_id, self.signature))
 
 
 def getLatestBalls():
@@ -141,7 +152,6 @@ def deleteBlock(block):
     try:
         url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block.block_id, block.signature)
 
-        time.sleep(0.1)
         r = requests.delete(url)
 
     except requests.exceptions.ConnectionError:
@@ -167,8 +177,8 @@ all_sprites_list = pygame.sprite.Group()
 getLatestBalls()
 
 # Create a white blocks
-line_1 = Block(WHITE, 20, 500, 5, 0)
-line_2 = Block(WHITE, 20, 500, 370, 0)
+line_1 = Block(WHITE, 20, 500, LEFT, 0)
+line_2 = Block(WHITE, 20, 500, RIGHT, 0)
 all_sprites_list.add(line_1)
 all_sprites_list.add(line_2)
 
@@ -190,8 +200,8 @@ while not done:
     screen.fill(BLACK)
 
     # Calls update() method on every sprite in the list
-    # all_sprites_list.update()
-    getLatestBalls()
+    all_sprites_list.update()
+    # getLatestBalls()
 
     # See if the player block has collided with anything.
     ball_hit_list_1 = pygame.sprite.spritecollide(line_1, block_list, True)
@@ -202,10 +212,12 @@ while not done:
     for block in ball_hit_list_1:
         score += 1
         deleteBlock(block)
+        block.kill()
 
     for block in ball_hit_list_2:
         score += 1
         deleteBlock(block)
+        block.kill()
 
     # Draw all the spites
     all_sprites_list.draw(screen)

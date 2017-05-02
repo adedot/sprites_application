@@ -23,7 +23,7 @@ BLUE = (0, 0, 255)
 LEFT_BARRIER = 25
 RIGHT_BARRIER = 300
 
-colors = {1: RED, 3:GREEN, 2: BLUE}
+colors = {1: RED, 3:GREEN}
 color_names = {1: "RED", 3: "GREEN", 2: "BLUE"}
 
 BALL_SIZE = 10
@@ -157,10 +157,9 @@ def getLatestBalls():
 def deleteBlock(block):
     try:
         url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block.block_id, block.signature)
-
         r = requests.delete(url)
-        update_score(block.signature)
         block.kill()
+        update_score(block.signature)
     except requests.exceptions.ConnectionError:
         pass
 
@@ -197,7 +196,10 @@ clock = pygame.time.Clock()
 
 def update_score(signature):
     score[signature] += 1
-    print("{} has {}" .format(color_names[signature], score[signature]))
+    print("{} now has {}" .format(color_names[signature], score[signature]))
+    print("Score now is:")
+    for color in colors:
+        print("{} has {}" .format(color_names[color], score[color]))
 
 
 # -------- Main Program Loop -----------

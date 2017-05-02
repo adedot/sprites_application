@@ -23,13 +23,16 @@ BLUE = (0, 0, 255)
 LEFT_BARRIER = 25
 RIGHT_BARRIER = 300
 
-
 colors = {1: RED, 3:GREEN, 2: BLUE}
+color_names = {1: "RED", 3: "GREEN", 2: "BLUE"}
 
 BALL_SIZE = 10
 # Create color mappings dictionary
+# 1: RED, 3:GREEN
+#Keep track of score
+score = { 1 : 0, 3: 0}
 
-# Add yellow
+
 
 
 BASE_URL = "http://54.146.129.119:8080/"
@@ -115,14 +118,15 @@ class Ball(pygame.sprite.Sprite):
 
             block_json = json.loads(r.text)
 
-            # if LEFT_BARRIER < block_json['x'] < RIGHT_BARRIER:
-            self.rect.x = block_json['x']
-            self.rect.y = block_json['y']
-            # else:
-            #     url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(self.block_id, self.signature)
 
-            #     r = requests.delete(url)
-            #     self.kill()
+
+            if LEFT_BARRIER < block_json['x'] < RIGHT_BARRIER:
+                if not (self.rect.x == block_json['x'] and self.rect.y == block_json['y']):
+                    self.rect.x = block_json['x']
+                    self.rect.y = block_json['y']
+            else:
+                deleteBlock(self)
+
 
         except requests.exceptions.ConnectionError:
             pass
@@ -155,7 +159,8 @@ def deleteBlock(block):
         url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block.block_id, block.signature)
 
         r = requests.delete(url)
-
+        update_score(block.signature)
+        block.kill()
     except requests.exceptions.ConnectionError:
         pass
 
@@ -190,7 +195,10 @@ done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 
-score = 0
+def update_score(signature):
+    score[signature] += 1
+    print("{} has {}" .format(color_names[signature], score[signature]))
+
 
 # -------- Main Program Loop -----------
 while not done:
@@ -205,21 +213,19 @@ while not done:
     all_sprites_list.update()
     # getLatestBalls()
 
-    # # See if the player block has collided with anything.
-    # ball_hit_list_1 = pygame.sprite.spritecollide(line_1, block_list, True)
-    # ball_hit_list_2 = pygame.sprite.spritecollide(line_2, block_list, True)
+    # See if the player block has collided with anything.
+    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, block_list, True)
+    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, block_list, True)
 
-    # # Delete all the boys in the hit list
-    # # Check the list of collisions.
-    # for block in ball_hit_list_1:
-    #     score += 1
-    #     deleteBlock(block)
-    #     block.kill()
+    # Delete all the boys in the hit list
+    # Check the list of collisions.
+    for block in ball_hit_list_1:
+        deleteBlock(block)
 
-    # for block in ball_hit_list_2:
-    #     score += 1
-    #     deleteBlock(block)
-    #     block.kill()
+    for block in ball_hit_list_2:
+        deleteBlock(block)
+
+
 
     # Draw all the spites
     all_sprites_list.draw(screen)

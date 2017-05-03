@@ -16,8 +16,6 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
-# add yellow
-# blue
 
 # Barriers
 LEFT_BARRIER = 25
@@ -32,7 +30,14 @@ BALL_SIZE = 10
 #Keep track of score
 score = { 1 : 0, 3: 0}
 
+block_id_list = []
 
+# This is a list of 'sprites.' Each block in the program is
+# added to this list. The list is managed by a class called 'Group.'
+block_list = pygame.sprite.Group()
+
+# This is a list of every sprite. All blocks and the player block as well.
+all_sprites_list = pygame.sprite.Group()
 
 
 BASE_URL = "http://54.146.129.119:8080/"
@@ -42,7 +47,6 @@ class Block(pygame.sprite.Sprite):
     This class represents the ball
     It derives from the "Sprite" class in Pygame
     """
-
     def __init__(self, color, width, height, x, y):
         """ Constructor. Pass in the color of the block,
         and its x and y position. """
@@ -61,14 +65,6 @@ class Block(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-
-    # def update(self):
-    #     # Fetch the x and y out of the list,
-    #     # just like we'd fetch letters out of a string.
-    #     # Set the player object to the mouse location
-    #     self.rect.x = self.x
-    #     self.rect.y = self.y
 
 
 class Ball(pygame.sprite.Sprite):
@@ -118,15 +114,12 @@ class Ball(pygame.sprite.Sprite):
 
             block_json = json.loads(r.text)
 
-
-
             if LEFT_BARRIER < block_json['x'] < RIGHT_BARRIER:
                 if not (self.rect.x == block_json['x'] and self.rect.y == block_json['y']):
                     self.rect.x = block_json['x']
                     self.rect.y = block_json['y']
             else:
                 deleteBlock(self)
-
 
         except requests.exceptions.ConnectionError:
             pass
@@ -135,6 +128,10 @@ class Ball(pygame.sprite.Sprite):
 
 
 def getLatestBalls():
+
+    # This is a list of every sprite. All blocks and the player block as well.
+    # all_sprites_list = pygame.sprite.Group()
+
 # # Send a request to get the latest blocks
     blocks_request = requests.get(BASE_URL+'blocks/latest/')
     # dump the json into a dictionary
@@ -145,14 +142,23 @@ def getLatestBalls():
 
         block_id = blocks[number]['block_id']
         signature = blocks[number]['signature']
-        width = 25
-        height = 25
-        block = Ball(colors[signature], width, height, block_id, signature)
-        block.rect.x = blocks[number]['x']
-        block.rect.y = blocks[number]['y']
-        block_list.add(block)
-        all_sprites_list.add(block)
+        if LEFT_BARRIER < blocks[number]['x'] < RIGHT_BARRIER:
+            width = 25
+            height = 25
+            block = Ball(colors[signature], width, height, block_id, signature)
+            block.rect.x = blocks[number]['x']
+            block.rect.y = blocks[number]['y']
+            block_list.add(block)
+            all_sprites_list.add(block)
+        else:
+            print(blocks[number])
+            if block_id and signature:
+                try:
 
+                    url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block['block_id'], block['signature'])
+                    r = requests.delete(url)
+                except requests.exceptions.ConnectionError:
+                    pass
 
 def deleteBlock(block):
     try:
@@ -181,6 +187,7 @@ all_sprites_list = pygame.sprite.Group()
 # To up date the position, make a call to the web service
 # to find the next position given the block id
 getLatestBalls()
+
 
 # Create a white blocks
 line_1 = Block(WHITE, 20, 500, LEFT_BARRIER, 0)
@@ -213,6 +220,9 @@ while not done:
 
     # Calls update() method on every sprite in the list
     all_sprites_list.update()
+    # for sprite in block_list:
+    #     print(sprite.block_id)
+    #     print(sprite.signature)
     # getLatestBalls()
 
     # See if the player block has collided with anything.
@@ -226,8 +236,6 @@ while not done:
 
     for block in ball_hit_list_2:
         deleteBlock(block)
-
-
 
     # Draw all the spites
     all_sprites_list.draw(screen)

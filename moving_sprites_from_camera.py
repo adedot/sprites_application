@@ -125,14 +125,11 @@ class Ball(pygame.sprite.Sprite):
             pass
         except ValueError:
             print("No Expected value for block_id {} and signature {}".format(self.block_id, self.signature))
-
+            self.kill()
 
 def getLatestBalls():
 
-    # This is a list of every sprite. All blocks and the player block as well.
-    # all_sprites_list = pygame.sprite.Group()
-
-# # Send a request to get the latest blocks
+    # # Send a request to get the latest blocks
     blocks_request = requests.get(BASE_URL+'blocks/latest/')
     # dump the json into a dictionary
     blocks = json.loads(blocks_request.text)
@@ -142,23 +139,32 @@ def getLatestBalls():
 
         block_id = blocks[number]['block_id']
         signature = blocks[number]['signature']
-        if LEFT_BARRIER < blocks[number]['x'] < RIGHT_BARRIER:
+        if LEFT_BARRIER < blocks[number]['x'] < RIGHT_BARRIER and block_id not in block_id_list:
+            print(blocks[number]['x'])
             width = 25
             height = 25
             block = Ball(colors[signature], width, height, block_id, signature)
             block.rect.x = blocks[number]['x']
             block.rect.y = blocks[number]['y']
             block_list.add(block)
+            block_id_list.append(block_id)
             all_sprites_list.add(block)
         else:
             print(blocks[number])
-            if block_id and signature:
-                try:
+            try:
 
-                    url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block['block_id'], block['signature'])
-                    r = requests.delete(url)
-                except requests.exceptions.ConnectionError:
-                    pass
+                url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block.block_id, block.signature)
+                r = requests.delete(url)
+            except requests.exceptions.ConnectionError:
+                pass
+            except ValueError:
+                print("No Expected value for block_id {} and signature {} for ".format(self.block_id, self.signature))
+
+def getUpdatedBalls(): 
+    pass
+    # 
+
+
 
 def deleteBlock(block):
     try:

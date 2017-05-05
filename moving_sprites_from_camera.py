@@ -16,19 +16,21 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
+YELLOW = (255,255,0)
+PURPLE = (75,0,130)
 
 # Barriers
 LEFT_BARRIER = 25
-RIGHT_BARRIER = 300
+RIGHT_BARRIER = 325
 
-colors = {1: RED, 3:GREEN}
-color_names = {1: "RED", 3: "GREEN", 2: "BLUE"}
+colors = {1: RED, 3:GREEN, 2: YELLOW, 4: PURPLE }
+color_names = {1: "RED", 3: "GREEN", 2: "YELLOW", 4: "PURPLE"}
 
 BALL_SIZE = 10
 # Create color mappings dictionary
 # 1: RED, 3:GREEN
 #Keep track of score
-score = { 1 : 0, 3: 0}
+score = { 1 : 0, 3: 0, 2: 0, 4: 0}
 
 block_id_list = []
 
@@ -107,25 +109,27 @@ class Ball(pygame.sprite.Sprite):
         """ Called each frame. """
 
         try:
-            url = BASE_URL + "blocks/updated/?block_id={}&signature={}".format(self.block_id, self.signature)
+
+            # if self.block_id in block_list: 
+            url = BASE_URL + "blocks/updated/?block_id={}".format(self.block_id)
 
             # time.sleep(0.5)
             r = requests.get(url)
 
             block_json = json.loads(r.text)
 
-            if LEFT_BARRIER < block_json['x'] < RIGHT_BARRIER:
-                if not (self.rect.x == block_json['x'] and self.rect.y == block_json['y']):
-                    self.rect.x = block_json['x']
-                    self.rect.y = block_json['y']
-            else:
-                deleteBlock(self)
+            # if LEFT_BARRIER < block_json['x'] < RIGHT_BARRIER:
+            # if not (self.rect.x == block_json['x'] and self.rect.y == block_json['y']):
+            self.rect.x = block_json['x']
+            self.rect.y = block_json['y']
+            # else:
+            #     deleteBlock(self)
 
         except requests.exceptions.ConnectionError:
             pass
         except ValueError:
-            print("No Expected value for block_id {} and signature {}".format(self.block_id, self.signature))
-            self.kill()
+            print("No Expected value for block_id {}".format(self.block_id))
+            # self.kill()
 
 def getLatestBalls():
 
@@ -139,26 +143,26 @@ def getLatestBalls():
 
         block_id = blocks[number]['block_id']
         signature = blocks[number]['signature']
-        if LEFT_BARRIER < blocks[number]['x'] < RIGHT_BARRIER and block_id not in block_id_list:
-            print(blocks[number]['x'])
-            width = 25
-            height = 25
-            block = Ball(colors[signature], width, height, block_id, signature)
-            block.rect.x = blocks[number]['x']
-            block.rect.y = blocks[number]['y']
-            block_list.add(block)
-            block_id_list.append(block_id)
-            all_sprites_list.add(block)
-        else:
-            print(blocks[number])
-            try:
+        # if LEFT_BARRIER < blocks[number]['x'] < RIGHT_BARRIER:
+            # print(blocks[number]['x'])
+        width = 25
+        height = 25
+        block = Ball(colors[signature], width, height, block_id, signature)
+        block.rect.x = blocks[number]['x']
+        block.rect.y = blocks[number]['y']
+        block_list.add(block)
+        block_id_list.append(block_id)
+        all_sprites_list.add(block)
+        # else:
+        #     print(blocks[number])
+        #     try:
 
-                url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block.block_id, block.signature)
-                r = requests.delete(url)
-            except requests.exceptions.ConnectionError:
-                pass
-            except ValueError:
-                print("No Expected value for block_id {} and signature {} for ".format(self.block_id, self.signature))
+        #         url = BASE_URL + "blocks/delete/?block_id={}&signature={}".format(block_id, signature)
+        #         r = requests.delete(url)
+        #     except requests.exceptions.ConnectionError:
+        #         pass
+        #     except ValueError:
+        #         print("No Expected value for block_id {} and signature {} for ".format(block_id, signature))
 
 def getUpdatedBalls(): 
     pass
@@ -209,10 +213,10 @@ clock = pygame.time.Clock()
 
 def update_score(signature):
     score[signature] += 1
-    print("{} now has {}" .format(color_names[signature], score[signature]))
-    print("Score now is:")
+    print("    {} now has {}" .format(color_names[signature], score[signature]))
+    print("    Score now is:")
     for color in colors:
-        print("{} has {}" .format(color_names[color], score[color]))
+        print("    {} has {}" .format(color_names[color], score[color]))
 
 
 # -------- Main Program Loop -----------
@@ -232,21 +236,21 @@ while not done:
     # getLatestBalls()
 
     # See if the player block has collided with anything.
-    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, block_list, True)
-    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, block_list, True)
+    # ball_hit_list_1 = pygame.sprite.spritecollide(line_1, block_list, True)
+    # ball_hit_list_2 = pygame.sprite.spritecollide(line_2, block_list, True)
 
     # Delete all the boys in the hit list
     # Check the list of collisions.
-    for block in ball_hit_list_1:
-        deleteBlock(block)
+    # for block in ball_hit_list_1:
+    #     deleteBlock(block)
 
-    for block in ball_hit_list_2:
-        deleteBlock(block)
+    # for block in ball_hit_list_2:
+    #     deleteBlock(block)
 
     # Draw all the spites
     all_sprites_list.draw(screen)
 
-    # Limit to 10 frames per second
+    # Limit to 50 frames per second
     clock.tick(60)
 
     # Go ahead and update the screen with what we've drawn.

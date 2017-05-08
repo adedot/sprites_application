@@ -18,19 +18,18 @@ YELLOW = (255,255,0)
 PURPLE = (75,0,130)
 
 # Barriers
-LEFT_BARRIER = 5
-RIGHT_BARRIER = 300
+LEFT_BARRIER = 45
+RIGHT_BARRIER = 290
 
-colors = {2: RED, 3:GREEN, 1: YELLOW, 6: PURPLE }
-color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 6: "PURPLE"}
-
+colors = {2: RED, 3:GREEN, 1: YELLOW, 5: BLUE }
+color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 5: "BLUE"}
 
 goal_list = [6,7]
 BALL_SIZE = 15
 # Create color mappings dictionary
-# 1: RED, 3:GREEN
-#Keep track of score
-score = { 1 : 0, 3: 0, 2: 0}
+# {2: "RED", 3: "GREEN", 1: "YELLOW", 5: "BLUE"}
+#Keep track of score from color mappings dictionaries
+score = { 1 : 0, 3: 0, 2: 0, 5: 0}
 
 ball_id_list = []
 
@@ -40,9 +39,6 @@ ball_list = pygame.sprite.Group()
 
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
-
-
-
 
 class Block(pygame.sprite.Sprite):
     """
@@ -122,10 +118,10 @@ block_list = pygame.sprite.Group()
 all_sprites_list = pygame.sprite.Group()
 
 # # Create a white blocks
-# line_1 = Block(WHITE, 20, 500, LEFT_BARRIER, 0)
-# line_2 = Block(WHITE, 20, 500, RIGHT_BARRIER, 0)
-# all_sprites_list.add(line_1)
-# all_sprites_list.add(line_2)
+line_1 = Block(PURPLE, 10, 500, LEFT_BARRIER, 0)
+line_2 = Block(PURPLE, 10, 500, RIGHT_BARRIER, 0)
+all_sprites_list.add(line_1)
+all_sprites_list.add(line_2)
 
 # Loop until the user clicks the close button.
 done = False
@@ -189,11 +185,6 @@ while not done:
                     print("Block id: {}".format(block_id))
                     print("Adding new ball")
                     create_new_ball(ball_data)
-                else:
-                    # print(line.strip(' \t\n\r'))
-                    # print("Adding new line")
-                    line_1 = Block(PURPLE, 20, 300, ball_data['x'], ball_data['y'])
-                    all_sprites_list.add(line_1)
 
         except ValueError as msg:
             print(line.strip(' \t\n\r'))

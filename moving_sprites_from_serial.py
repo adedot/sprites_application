@@ -18,17 +18,19 @@ YELLOW = (255,255,0)
 PURPLE = (75,0,130)
 
 # Barriers
-LEFT_BARRIER = 25
-RIGHT_BARRIER = 325
+LEFT_BARRIER = 5
+RIGHT_BARRIER = 300
 
-colors = {1: RED, 3:GREEN, 2: YELLOW, 4: PURPLE }
-color_names = {1: "RED", 3: "GREEN", 2: "YELLOW", 4: "PURPLE"}
+colors = {2: RED, 3:GREEN, 1: YELLOW, 6: PURPLE }
+color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 6: "PURPLE"}
 
+
+goal_list = [6,7]
 BALL_SIZE = 15
 # Create color mappings dictionary
 # 1: RED, 3:GREEN
 #Keep track of score
-score = { 1 : 0, 3: 0, 2: 0, 4: 0}
+score = { 1 : 0, 3: 0, 2: 0}
 
 ball_id_list = []
 
@@ -108,8 +110,8 @@ def deleteBlock(block):
 pygame.init()
 
 # Set the height and width of the screen
-screen_width = 400
-screen_height = 300
+screen_width = 320
+screen_height = 220
 screen = pygame.display.set_mode([screen_width, screen_height])
 
 # This is a list of 'sprites.' Each block in the program is
@@ -119,11 +121,11 @@ block_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
-# Create a white blocks
-line_1 = Block(WHITE, 20, 500, LEFT_BARRIER, 0)
-line_2 = Block(WHITE, 20, 500, RIGHT_BARRIER, 0)
-all_sprites_list.add(line_1)
-all_sprites_list.add(line_2)
+# # Create a white blocks
+# line_1 = Block(WHITE, 20, 500, LEFT_BARRIER, 0)
+# line_2 = Block(WHITE, 20, 500, RIGHT_BARRIER, 0)
+# all_sprites_list.add(line_1)
+# all_sprites_list.add(line_2)
 
 # Loop until the user clicks the close button.
 done = False
@@ -140,11 +142,12 @@ def update_score(signature):
 
 
 def create_new_ball(ball_data):
-    ball = Ball(colors[signature], BALL_SIZE, BALL_SIZE, block_id, signature)
+    ball = Ball(colors[signature], BALL_SIZE, BALL_SIZE, ball_data['block_id'], ball_data['signature'])
     ball.rect.x = ball_data['x']
     ball.rect.y = ball_data['y']
     ball_list.add(ball)
-    ball_id_list.append(block_id)
+    if ball_data['block_id'] not in ball_id_list:
+        ball_id_list.append(block_id)
     all_sprites_list.add(ball)
 # Serial Information
 serial_port = '/dev/cu.usbmodem1421'
@@ -163,14 +166,14 @@ while not done:
 
     line = serial_data.readline();
     line = line.decode("utf-8") #ser.readline returns a binary, convert to string
+    # print(line.strip(' \t\n\r'))
     if line.strip(' \t\n\r'):
-        print(line.strip(' \t\n\r'))
         try:
             ball_data = json.loads(line.strip(' \t\n\r')) # needed to get data as json object
             block_id = ball_data['block_id']
             signature = ball_data['signature']
 
-            if block_id in ball_id_list:
+            if block_id in ball_id_list and signature not in goal_list:
                 # delete ball
                 for old_ball in ball_list:
                     if old_ball.block_id == block_id:
@@ -179,8 +182,21 @@ while not done:
                             create_new_ball(ball_data)
                         break
             else:
-                create_new_ball(ball_data)
+                if signature not in goal_list:
+                    print(line.strip(' \t\n\r'))
+                    print(ball_id_list)
+                    print(ball_list)
+                    print("Block id: {}".format(block_id))
+                    print("Adding new ball")
+                    create_new_ball(ball_data)
+                else:
+                    # print(line.strip(' \t\n\r'))
+                    # print("Adding new line")
+                    line_1 = Block(PURPLE, 20, 300, ball_data['x'], ball_data['y'])
+                    all_sprites_list.add(line_1)
+
         except ValueError as msg:
+            print(line.strip(' \t\n\r'))
             print("{}".format(msg))
 
     # Draw all the spites

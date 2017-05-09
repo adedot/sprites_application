@@ -155,9 +155,10 @@ baud_rate = 9600 #In arduino, Serial.begin(baud_rate)
 
 serial_data = serial.Serial(serial_port, baud_rate)
 
+
+# clear data
 serial_data.reset_input_buffer()
 serial_data.reset_output_buffer()
-
 # -------- Main Program Loop -----------
 while not done:
     for event in pygame.event.get():

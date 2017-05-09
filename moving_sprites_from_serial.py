@@ -44,6 +44,13 @@ ball_hit_list_2 = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
+
+html_file = open('score.html', 'w')
+html_file.write("\n<p>The Score is:")
+
+for color in colors:
+        html_file.write("<p>    {} has {}</p>" .format(color_names[color], score[color]))
+html_file.close()
 # Used to create a thick line
 class Line(pygame.sprite.Sprite):
     """
@@ -123,10 +130,12 @@ clock = pygame.time.Clock()
 
 def update_score(signature):
     score[signature] += 1
-    print("    {} now has {}" .format(color_names[signature], score[signature]))
-    print("    Score now is:")
+    html_file = open('score.html', 'w+')
+    html_file.write("\n<p>    {} now has {}</p>" .format(color_names[signature], score[signature]))
+    html_file.write("\n<p>    Score now is:")
     for color in colors:
-        print("    {} has {}" .format(color_names[color], score[color]))
+        html_file.write("<p>    {} has {}</p>" .format(color_names[color], score[color]))
+    html_file.close()
 
 
 def create_new_ball(ball_data):
@@ -175,16 +184,17 @@ while not done:
                         break
             else:
                 if signature not in goal_list and LEFT_BARRIER < ball_data['x'] < RIGHT_BARRIER:
-                    print(line.strip(' \t\n\r'))
-                    print(ball_id_list)
-                    print(ball_list)
-                    print("Block id: {}".format(block_id))
-                    print("Adding new ball")
+                    # print(line.strip(' \t\n\r'))
+                    # print(ball_id_list)
+                    # print(ball_list)
+                    # print("Block id: {}".format(block_id))
+                    # print("Adding new ball")
                     create_new_ball(ball_data)
 
         except ValueError as msg:
-            print(line.strip(' \t\n\r'))
-            print("{}".format(msg))
+            pass
+            # print(line.strip(' \t\n\r'))
+            # print("{}".format(msg))
 
     # See if the player block has collided with anything.
     ball_hit_list_1 = pygame.sprite.spritecollide(line_1, ball_list, True)
@@ -193,7 +203,7 @@ while not done:
     # Delete all the boys in the hit list
     # # Check the list of collisions.
     for ball in ball_hit_list_1:
-        print("Ball {} has crossed the left line".format(ball.block_id))
+        # print("Ball {} has crossed the left line".format(ball.block_id))
         update_score(ball.signature)
         # ball_hit_list_1.remove(ball.block_id)
         ball_id_list.remove(ball.block_id)
@@ -201,7 +211,7 @@ while not done:
         # update the score for the ball
 
     for ball in ball_hit_list_2:
-        print("Ball {} has crossed the right line".format(ball.block_id))
+        # print("Ball {} has crossed the right line".format(ball.block_id))
         update_score(ball.signature)
         # ball_hit_list_2.remove(ball.block_id)
         ball_id_list.remove(ball.block_id)

@@ -37,6 +37,9 @@ ball_id_list = []
 # This is a list of 'sprites.' Each block in the program is
 # added to this list. The list is managed by a class called 'Group.'
 ball_list = pygame.sprite.Group()
+ball_hit_list_1 = pygame.sprite.Group()
+ball_hit_list_2 = pygame.sprite.Group()
+
 
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
@@ -162,7 +165,7 @@ while not done:
             block_id = ball_data['block_id']
             signature = ball_data['signature']
 
-            if block_id in ball_id_list and signature not in goal_list:
+            if block_id in ball_id_list and signature not in goal_list and LEFT_BARRIER < ball_data['x'] < RIGHT_BARRIER:
                 # delete ball
                 for old_ball in ball_list:
                     if old_ball.block_id == block_id:
@@ -171,7 +174,7 @@ while not done:
                             create_new_ball(ball_data)
                         break
             else:
-                if signature not in goal_list:
+                if signature not in goal_list and LEFT_BARRIER < ball_data['x'] < RIGHT_BARRIER:
                     print(line.strip(' \t\n\r'))
                     print(ball_id_list)
                     print(ball_list)
@@ -184,22 +187,24 @@ while not done:
             print("{}".format(msg))
 
     # See if the player block has collided with anything.
-    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, ball_list, False)
-    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, ball_list, False)
+    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, ball_list, True)
+    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, ball_list, True)
 
     # Delete all the boys in the hit list
     # # Check the list of collisions.
     for ball in ball_hit_list_1:
         print("Ball {} has crossed the left line".format(ball.block_id))
         update_score(ball.signature)
-
+        # ball_hit_list_1.remove(ball.block_id)
+        ball_id_list.remove(ball.block_id)
 
         # update the score for the ball
 
     for ball in ball_hit_list_2:
         print("Ball {} has crossed the right line".format(ball.block_id))
         update_score(ball.signature)
-        # update the score for the ball
+        # ball_hit_list_2.remove(ball.block_id)
+        ball_id_list.remove(ball.block_id)
 
     # Draw all the spites
     all_sprites_list.draw(screen)

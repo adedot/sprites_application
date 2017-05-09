@@ -96,14 +96,6 @@ class Ball(pygame.sprite.Sprite):
         pygame.draw.ellipse(self.image,color, [0, 0, width, height])
 
 
-def getUpdatedBalls():
-    pass
-    #
-
-def deleteBlock(block):
-    block.kill()
-    update_score(block.signature)
-
 # Initialize Pygame
 pygame.init()
 
@@ -113,13 +105,6 @@ screen_height = 220
 screen = pygame.display.set_mode([screen_width, screen_height],HWSURFACE|DOUBLEBUF|RESIZABLE)
 
 # number_screen = pygame.display.set_mode([screen_width, screen_height])
-
-# This is a list of 'sprites.' Each block in the program is
-# added to this list. The list is managed by a class called 'Group.'
-block_list = pygame.sprite.Group()
-
-# This is a list of every sprite. All blocks and the player block as well.
-all_sprites_list = pygame.sprite.Group()
 
 # # Create a white blocks
 line_1 = Line(PURPLE, 10, 500, LEFT_BARRIER, 0)
@@ -197,6 +182,24 @@ while not done:
         except ValueError as msg:
             print(line.strip(' \t\n\r'))
             print("{}".format(msg))
+
+    # See if the player block has collided with anything.
+    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, ball_list, False)
+    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, ball_list, False)
+
+    # Delete all the boys in the hit list
+    # # Check the list of collisions.
+    for ball in ball_hit_list_1:
+        print("Ball {} has crossed the left line".format(ball.block_id))
+        update_score(ball.signature)
+
+
+        # update the score for the ball
+
+    for ball in ball_hit_list_2:
+        print("Ball {} has crossed the right line".format(ball.block_id))
+        update_score(ball.signature)
+        # update the score for the ball
 
     # Draw all the spites
     all_sprites_list.draw(screen)

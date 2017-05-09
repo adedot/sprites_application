@@ -7,6 +7,7 @@ import random
 import ujson as json
 import serial
 import time
+from pygame.locals import *
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -40,7 +41,8 @@ ball_list = pygame.sprite.Group()
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
 
-class Block(pygame.sprite.Sprite):
+# Used to create a thick line
+class Line(pygame.sprite.Sprite):
     """
     This class represents the ball
     It derives from the "Sprite" class in Pygame
@@ -108,7 +110,9 @@ pygame.init()
 # Set the height and width of the screen
 screen_width = 320
 screen_height = 220
-screen = pygame.display.set_mode([screen_width, screen_height])
+screen = pygame.display.set_mode([screen_width, screen_height],HWSURFACE|DOUBLEBUF|RESIZABLE)
+
+# number_screen = pygame.display.set_mode([screen_width, screen_height])
 
 # This is a list of 'sprites.' Each block in the program is
 # added to this list. The list is managed by a class called 'Group.'
@@ -118,8 +122,8 @@ block_list = pygame.sprite.Group()
 all_sprites_list = pygame.sprite.Group()
 
 # # Create a white blocks
-line_1 = Block(PURPLE, 10, 500, LEFT_BARRIER, 0)
-line_2 = Block(PURPLE, 10, 500, RIGHT_BARRIER, 0)
+line_1 = Line(PURPLE, 10, 500, LEFT_BARRIER, 0)
+line_2 = Line(PURPLE, 10, 500, RIGHT_BARRIER, 0)
 all_sprites_list.add(line_1)
 all_sprites_list.add(line_2)
 

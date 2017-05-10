@@ -55,7 +55,7 @@ html_file.write("""
 html_file.write("\n<p>The Score is:\n")
 
 for color in colors:
-        html_file.write("\n<p style=\"color:{}\">    {} has {}</p>" .format(str(color_names[color]).lower(),color_names[color], score[color]))
+        html_file.write("\n<p style=\"color:{};font-size:40px;\">    {} has {}</p>" .format(str(color_names[color]).lower(),color_names[color], score[color]))
 
 html_file.write("""</body>
 </html>""")
@@ -152,10 +152,10 @@ def update_score(signature):
   <meta http-equiv="refresh" content="1">
 </head>
 <body bgcolor="black">""")
-    html_file.write("\n<p style=\"color:{}\">    {} now has {}</p>" .format(str(color_names[signature]).lower(), color_names[signature], score[signature]))
+    html_file.write("\n<p style=\"color:{};font-size:40px;\">    {} now has {}</p>" .format(str(color_names[signature]).lower(), color_names[signature], score[signature]))
     html_file.write("\n<p>    Score now is:")
     for color in colors:
-        html_file.write("\n<p style=\"color:{}\">    {} has {}</p>" .format(str(color_names[color]).lower(),color_names[color], score[color]))
+        html_file.write("\n<p style=\"color:{};font-size:40px;\">    {} has {}</p>" .format(str(color_names[color]).lower(),color_names[color], score[color]))
     html_file.write("""</body>
 </html>""")
     html_file.close()
@@ -187,18 +187,13 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        # if event.type == VIDEORESIZE:
-        #     # The main code that resizes the window:
-        #     # (recreate the window with the new size)
-        #     surface = pygame.display.set_mode((event.w, event.h),
-        #                                   pygame.RESIZABLE)
 
     # Clear the screen
     screen.fill(BLACK)
 
     line = serial_data.readline();
     line = line.decode("utf-8") #ser.readline returns a binary, convert to string
-    # print(line.strip(' \t\n\r'))
+    print(line.strip(' \t\n\r'))
     if line.strip(' \t\n\r'):
         try:
             ball_data = json.loads(line.strip(' \t\n\r')) # needed to get data as json object

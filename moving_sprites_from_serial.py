@@ -3,10 +3,9 @@ Moving Sprites from Pixy Camera
 """
 
 import pygame
-import random
 import ujson as json
 import serial
-import time
+from pygame.transform import scale
 from pygame.locals import *
 
 # Define some colors
@@ -19,18 +18,18 @@ YELLOW = (255,255,0)
 PURPLE = (75,0,130)
 
 # Barriers
-LEFT_BARRIER = 45
+LEFT_BARRIER = 43
 RIGHT_BARRIER = 290
 
-colors = {2: RED, 3:GREEN, 1: YELLOW, 5: BLUE }
-color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 5: "BLUE"}
+colors = {2: RED, 3:GREEN, 1: YELLOW, 4: BLUE }
+color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 4: "BLUE"}
 
 goal_list = [6,7]
 BALL_SIZE = 15
 # Create color mappings dictionary
 # {2: "RED", 3: "GREEN", 1: "YELLOW", 5: "BLUE"}
 #Keep track of score from color mappings dictionaries
-score = { 1 : 0, 3: 0, 2: 0, 5: 0}
+score = { 1 : 0, 3: 0, 2: 0, 4: 0}
 
 ball_id_list = []
 
@@ -46,10 +45,20 @@ all_sprites_list = pygame.sprite.Group()
 
 
 html_file = open('score.html', 'w')
-html_file.write("\n<p>The Score is:")
+html_file.write("""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="1">
+</head>
+<body bgcolor="black">""")
+html_file.write("\n<p>The Score is:\n")
 
 for color in colors:
-        html_file.write("<p>    {} has {}</p>" .format(color_names[color], score[color]))
+        html_file.write("\n<p style=\"color:{}\">    {} has {}</p>" .format(str(color_names[color]).lower(),color_names[color], score[color]))
+
+html_file.write("""</body>
+</html>""")
 html_file.close()
 # Used to create a thick line
 class Line(pygame.sprite.Sprite):
@@ -131,10 +140,19 @@ clock = pygame.time.Clock()
 def update_score(signature):
     score[signature] += 1
     html_file = open('score.html', 'w+')
-    html_file.write("\n<p>    {} now has {}</p>" .format(color_names[signature], score[signature]))
+    html_file.write("""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="1">
+</head>
+<body bgcolor="black">""")
+    html_file.write("\n<p style=\"color:{}\">    {} now has {}</p>" .format(str(color_names[signature]).lower(), color_names[signature], score[signature]))
     html_file.write("\n<p>    Score now is:")
     for color in colors:
-        html_file.write("<p>    {} has {}</p>" .format(color_names[color], score[color]))
+        html_file.write("\n<p style=\"color:{}\">    {} has {}</p>" .format(str(color_names[color]).lower(),color_names[color], score[color]))
+    html_file.write("""</body>
+</html>""")
     html_file.close()
 
 
@@ -146,6 +164,7 @@ def create_new_ball(ball_data):
     if ball_data['block_id'] not in ball_id_list:
         ball_id_list.append(block_id)
     all_sprites_list.add(ball)
+
 # Serial Information
 serial_port = '/dev/cu.usbmodem1421'
 baud_rate = 9600 #In arduino, Serial.begin(baud_rate)
@@ -156,6 +175,8 @@ serial_data = serial.Serial(serial_port, baud_rate)
 # clear data
 serial_data.reset_input_buffer()
 serial_data.reset_output_buffer()
+serial_data.flushInput()
+serial_data.flushOutput()
 # -------- Main Program Loop -----------
 while not done:
     for event in pygame.event.get():
@@ -181,14 +202,11 @@ while not done:
                         if old_ball.rect.x != ball_data['x'] and old_ball.rect.y != ball_data['y']:
                             old_ball.kill()
                             create_new_ball(ball_data)
+                            break
                         break
+
             else:
                 if signature not in goal_list and LEFT_BARRIER < ball_data['x'] < RIGHT_BARRIER:
-                    # print(line.strip(' \t\n\r'))
-                    # print(ball_id_list)
-                    # print(ball_list)
-                    # print("Block id: {}".format(block_id))
-                    # print("Adding new ball")
                     create_new_ball(ball_data)
 
         except ValueError as msg:
@@ -196,19 +214,17 @@ while not done:
             # print(line.strip(' \t\n\r'))
             # print("{}".format(msg))
 
-    # See if the player block has collided with anything.
+    # # See if the player block has collided with anything.
     ball_hit_list_1 = pygame.sprite.spritecollide(line_1, ball_list, True)
     ball_hit_list_2 = pygame.sprite.spritecollide(line_2, ball_list, True)
-
-    # Delete all the boys in the hit list
-    # # Check the list of collisions.
+    # Check the list of collisions.
     for ball in ball_hit_list_1:
         # print("Ball {} has crossed the left line".format(ball.block_id))
         update_score(ball.signature)
         # ball_hit_list_1.remove(ball.block_id)
         ball_id_list.remove(ball.block_id)
 
-        # update the score for the ball
+    #     # update the score for the ball
 
     for ball in ball_hit_list_2:
         # print("Ball {} has crossed the right line".format(ball.block_id))
@@ -220,7 +236,7 @@ while not done:
     all_sprites_list.draw(screen)
 
     # Limit to 50 frames per second
-    clock.tick(60)
+    clock.tick(50)
 
     # Go ahead and update the screen with what we've drawn.
     pygame.display.flip()

@@ -74,7 +74,7 @@ class Line(pygame.sprite.Sprite):
 
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
-        self.image = pygame.Surface([width, height])
+        self.image = pygame.Surface([width*3, height*3])
         self.image.fill(color)
 
         # Fetch the rectangle object that has the dimensions of the image
@@ -82,8 +82,8 @@ class Line(pygame.sprite.Sprite):
         # Update the position of this object by setting the values
         # of rect.x and rect.y
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.x = x * 3
+        self.rect.y = y * 3
 
 
 class Ball(pygame.sprite.Sprite):
@@ -99,7 +99,7 @@ class Ball(pygame.sprite.Sprite):
 
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
-        self.image = pygame.Surface([width, height])
+        self.image = pygame.Surface([width*3, height*3])
         self.image.fill(BLACK)
         self.image.set_colorkey(BLACK)
 
@@ -112,17 +112,22 @@ class Ball(pygame.sprite.Sprite):
         # Update the position of this object by setting the values
         # of rect.x and rect.y
         self.rect = self.image.get_rect()
-        pygame.draw.ellipse(self.image,color, [0, 0, width, height])
+        pygame.draw.ellipse(self.image,color, [0, 0, width*3, height*3])
 
 
 # Initialize Pygame
 pygame.init()
 
 # Set the height and width of the screen
-screen_width = 320
-screen_height = 220
+screen_width = 320*3
+screen_height = 220*3
+# screen=pygame.display.set_mode((640,480),0,24)
 screen = pygame.display.set_mode([screen_width, screen_height],HWSURFACE|DOUBLEBUF|RESIZABLE)
+# surface = pygame.display.get_surface()
+# pygame.transform.scale(surface, (800, 800))
+# screen = pygame.display.set_mode([800, 800],HWSURFACE|RESIZABLE)
 
+# screen.blit(surface,(800, 800), (0,0))
 # number_screen = pygame.display.set_mode([screen_width, screen_height])
 
 # # Create a white blocks
@@ -158,8 +163,8 @@ def update_score(signature):
 
 def create_new_ball(ball_data):
     ball = Ball(colors[signature], BALL_SIZE, BALL_SIZE, ball_data['block_id'], ball_data['signature'])
-    ball.rect.x = ball_data['x']
-    ball.rect.y = ball_data['y']
+    ball.rect.x = ball_data['x'] * 3
+    ball.rect.y = ball_data['y'] * 3
     ball_list.add(ball)
     if ball_data['block_id'] not in ball_id_list:
         ball_id_list.append(block_id)
@@ -182,6 +187,11 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+        # if event.type == VIDEORESIZE:
+        #     # The main code that resizes the window:
+        #     # (recreate the window with the new size)
+        #     surface = pygame.display.set_mode((event.w, event.h),
+        #                                   pygame.RESIZABLE)
 
     # Clear the screen
     screen.fill(BLACK)

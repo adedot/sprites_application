@@ -1,13 +1,17 @@
 import pygame
+from score import *
 
-# Define some colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-YELLOW = (255,255,0)
-PURPLE = (75,0,130)
+from colors import *
+
+
+# Barriers
+LEFT_BARRIER = 43
+RIGHT_BARRIER = 290
+
+colors = {2: RED, 3:GREEN, 1: YELLOW, 4: BLUE }
+# score = { 1 : 0, 3: 0, 2: 0, 4: 0}
+
+BALL_SIZE = 15
 
 # Used to create a thick line
 class Line(pygame.sprite.Sprite):
@@ -63,3 +67,49 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         pygame.draw.ellipse(self.image,color, [0, 0, width*3, height*3])
 
+def create_new_ball(ball_data, ball_id_list, ball_list, all_sprites_list):
+    block_id = ball_data['block_id']
+    signature = ball_data['signature']
+    ball = Ball(colors[signature], BALL_SIZE, BALL_SIZE, ball_data['block_id'], ball_data['signature'])
+    ball.rect.x = ball_data['x'] * 3
+    ball.rect.y = ball_data['y'] * 3
+    ball_list.add(ball)
+
+    if ball_data['block_id'] not in ball_id_list:
+        ball_id_list.append(block_id)
+    all_sprites_list.add(ball)
+
+
+def create_ball(ball_data, ball_id_list, ball_list, goal_list, all_sprites_list):
+    block_id = ball_data['block_id']
+    signature = ball_data['signature']
+
+    if block_id in ball_id_list and signature not in goal_list and LEFT_BARRIER < ball_data['x'] < RIGHT_BARRIER:
+        # delete ball
+        for old_ball in ball_list:
+            if old_ball.block_id == block_id:
+                if old_ball.rect.x != ball_data['x'] and old_ball.rect.y != ball_data['y']:
+                    old_ball.kill()
+                    create_new_ball(ball_data, ball_id_list, ball_list, all_sprites_list)
+                    break
+                break
+    else:
+        if signature not in goal_list and LEFT_BARRIER < ball_data['x'] < RIGHT_BARRIER:
+            create_new_ball(ball_data, ball_id_list, ball_list, all_sprites_list)
+
+def check_ball_collisions(line_1, line_2, ball_list, ball_id_list):
+    ball_hit_list_1 = pygame.sprite.spritecollide(line_1, ball_list, True)
+    ball_hit_list_2 = pygame.sprite.spritecollide(line_2, ball_list, True)
+    # Check the list of collisions.
+    for ball in ball_hit_list_1:
+        # print("Ball {} has crossed the left line".format(ball.block_id))
+        update_score(ball.signature)
+        # ball_hit_list_1.remove(ball.block_id)
+        ball_id_list.remove(ball.block_id)
+        # update the score for the ball
+
+    for ball in ball_hit_list_2:
+        # print("Ball {} has crossed the right line".format(ball.block_id))
+        update_score(ball.signature)
+        # ball_hit_list_2.remove(ball.block_id)
+        ball_id_list.remove(ball.block_id)

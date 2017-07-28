@@ -1,3 +1,10 @@
+from colors import *
+
+score = { 1 : 0, 3: 0, 2: 0, 4: 0}
+color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 4: "BLUE"}
+colors = {2: RED, 3:GREEN, 1: YELLOW, 4: BLUE }
+
+
 def update_score(signature):
     score[signature] += 1
     html_file = open('score.html', 'w+')

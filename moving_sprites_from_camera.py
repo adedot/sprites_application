@@ -23,8 +23,8 @@ PURPLE = (75,0,130)
 LEFT_BARRIER = 25
 RIGHT_BARRIER = 325
 
-colors = {1: RED, 3:GREEN, 2: YELLOW, 4: PURPLE }
-color_names = {1: "RED", 3: "GREEN", 2: "YELLOW", 4: "PURPLE"}
+colors = {2: RED, 3:GREEN, 1: YELLOW, 4: PURPLE }
+color_names = {2: "RED", 3: "GREEN", 1: "YELLOW", 4: "PURPLE"}
 
 BALL_SIZE = 10
 # Create color mappings dictionary
@@ -145,8 +145,8 @@ def getLatestBalls():
         signature = blocks[number]['signature']
         # if LEFT_BARRIER < blocks[number]['x'] < RIGHT_BARRIER:
             # print(blocks[number]['x'])
-        width = 25
-        height = 25
+        width = 15
+        height = 15
         block = Ball(colors[signature], width, height, block_id, signature)
         block.rect.x = blocks[number]['x']
         block.rect.y = blocks[number]['y']

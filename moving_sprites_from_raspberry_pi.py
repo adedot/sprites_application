@@ -1,7 +1,5 @@
-"""
-Moving Sprites from Pixy Camera
-"""
-
+from pixy import *
+from ctypes import *
 import pygame
 import ujson as json
 import serial
@@ -33,7 +31,6 @@ ball_hit_list_2 = pygame.sprite.Group()
 
 # This is a list of every sprite. All blocks and the player block as well.
 all_sprites_list = pygame.sprite.Group()
-
 
 html_file = open('score.html', 'w')
 html_file.write("""
@@ -73,52 +70,53 @@ done = False
 
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
+# Pixy Python SWIG get blocks example #
 
+print ("Pixy Python SWIG Example -- Get Blocks")
 
-# Serial Information
-serial_port = '/dev/cu.usbmodem1421'
-baud_rate = 9600 #In arduino, Serial.begin(baud_rate)
+# Initialize Pixy Interpreter thread #
+pixy_init()
 
-serial_data = serial.Serial(serial_port, baud_rate)
+class Blocks (Structure):
+  _fields_ = [ ("type", c_uint),
+               ("signature", c_uint),
+               ("x", c_uint),
+               ("y", c_uint),
+               ("width", c_uint),
+               ("height", c_uint),
+               ("angle", c_uint) ]
 
+blocks = BlockArray(100)
+frame  = 0
 
-# clear data
-serial_data.reset_input_buffer()
-serial_data.reset_output_buffer()
-serial_data.flushInput()
-serial_data.flushOutput()
-# -------- Main Program Loop -----------
-while not done:
-    for event in pygame.event.get():
+# Wait for blocks #
+while 1:
+  for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+  # Clear the screen
+  screen.fill(BLACK)
 
-    # Clear the screen
-    screen.fill(BLACK)
+  count = pixy_get_blocks(100, blocks)
 
-    line = serial_data.readline();
-    line = line.decode("utf-8") #ser.readline returns a binary, convert to string
-    print(line.strip(' \t\n\r'))
-    if line.strip(' \t\n\r'):
-        try:
-            ball_data = json.loads(line.strip(' \t\n\r')) # needed to get data as json object
-            # create ball
-            create_ball(ball_data, ball_id_list, ball_list, goal_list,all_sprites_list)
+  if count > 0:
+    # Blocks found #
+    print('frame %3d:' % (frame))
+    frame = frame + 1
+    for index in range (0, count):
+      print('[BLOCK_TYPE=%d SIG=%d X=%3d Y=%3d]' % (blocks[index].type, blocks[index].signature, blocks[index].x, blocks[index].y))
+      blocks[index]["block_id"] = index
+      create_ball(blocks[index], ball_id_list, ball_list, goal_list,all_sprites_list)
+      
+  check_ball_collisions(line_1, line_2, ball_list, ball_id_list)
 
-        except ValueError as msg:
-            pass
+  # Draw all the spites
+  all_sprites_list.draw(screen)
 
-    # # See if the player block has collided with anything.
+  # Limit to 50 frames per second
+  clock.tick(50)
 
-    check_ball_collisions(line_1, line_2, ball_list, ball_id_list)
-
-    # Draw all the spites
-    all_sprites_list.draw(screen)
-
-    # Limit to 50 frames per second
-    clock.tick(50)
-
-    # Go ahead and update the screen with what we've drawn.
-    pygame.display.flip()
+  # Go ahead and update the screen with what we've drawn.
+  pygame.display.flip()
 
 pygame.quit()
